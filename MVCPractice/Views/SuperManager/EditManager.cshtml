@@ -1,0 +1,53 @@
+﻿@model BusinessLayer.Manager
+@{
+    ViewBag.Title = "EditManager";
+}
+
+@using (Html.BeginForm())
+{
+    <div class="jumbotron bg-light text-dark">
+        <div>
+            <h1><label id="Label1">Edit Manager</label></h1>
+            @*<h3><label id="Label">Manager Id = @ViewBag.mgrId</label></h3>*@
+        </div>
+        <div class="form-group">
+            <label id="Label2" class="col-form-label">Manager Name</label>
+            <input type="text" class="form-control" name="managerName" id="managerName" />
+            @*@Html.EditorFor(model => model.managerName)*@
+        </div>
+
+        <div class="form-group">
+            <label id="Label4" class="col-form-label">Address</label>
+            <input type="text" class="form-control" name="address" id="address" />
+            @*@Html.EditorFor(model => model.address)*@
+        </div>
+
+        <div class="form-group">
+            <label id="Label4" class="col-form-label">Phone Number</label>
+            <input type="text" class="form-control" name="phoneNo" id="phoneNo" />
+            @*@Html.EditorFor(model => model.phoneNo)*@
+        </div>
+
+        <div class="form-group">
+            <label id="Label4" class="col-form-label">Email Id</label>
+            <input type="text" class="form-control" name="userId" id="userId" />
+            @*@Html.EditorFor(model => model.userId)*@
+        </div>
+
+        <div class="form-group">
+            <label id="Label4" class="col-form-label">Branch Id</label>
+            <input type="text" class="form-control" name="branchId" id="branchId" />
+            @*@Html.EditorFor(model => model.branchId)*@
+        </div>
+
+        <div>
+            <input type="submit" class="btn btn-outline-success" value="Edit Details" />
+        </div>
+        <label id="Label6"></label>
+        <div>
+            @ViewBag.result1
+        </div>
+
+    </div>
+}
+

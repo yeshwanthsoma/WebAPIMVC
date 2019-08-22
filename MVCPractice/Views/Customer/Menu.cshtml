@@ -1,4 +1,4 @@
-﻿@model BusinessLayer.Account
+﻿@model MVCPractice.Models.accountDetailViewModel
 @{
     ViewBag.Title = "Menu";
 
@@ -16,12 +16,13 @@
 <div class="jumbotron d-inline-block" style=" margin-top: 100px">
     <div class="input-group">
         <label id="AccountNO" class="input-group-text input-group-prepend">AccountNo</label>
-        <label id="Account" class="form-control">@Model.accountNo</label>
+        <label id="Account" class="form-control">@Model.accountNumber</label>
     </div>
     <br />
     <div class="input-group">
         <label id="balanceMsg" class="input-group-text input-group-prepend">Balance &nbsp;&nbsp;&nbsp;&nbsp;</label>
-        <label id="Balance" class="form-control">@Model.amount</label>
+        <label id="Balance" class="form-control">@Model.accountBalance</label>
     </div>
     @ViewBag.branchId
 </div>
+@Session["NoAccountSelectedError"]

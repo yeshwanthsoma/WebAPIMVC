@@ -1,4 +1,4 @@
-﻿@model  IEnumerable<BusinessLayer.Account>
+﻿@model  IEnumerable<MVCPractice.Models.accountDetailViewModel>
 @{
     ViewBag.Title = "Account";
 }
@@ -21,7 +21,7 @@
     </div>
 
 }
-@*@if (Model != null)
+@if (Model != null)
 {
     using (Html.BeginForm("editAccount", "Manager"))
     {
@@ -35,21 +35,21 @@
                     <th>Status</th>
                 </tr>
 
-                @foreach (BusinessLayer.Account accounts in Model)
+                @foreach (MVCPractice.Models.accountDetailViewModel accounts in Model)
                 {
                     <tr>
                         <td>
-                            @Html.RadioButton("selectedAccount", accounts.accountNo)
+                            @Html.RadioButton("selectedAccount", accounts.accountNumber)
                         </td>
                         <td>
-                            @accounts.accountNo
+                            @accounts.accountNumber
 
                         </td>
                         <td>
                             @accounts.accountType
                         </td>
                         <td>
-                            @accounts.status
+                            @accounts.accountStatus
                         </td>
                     </tr>
 
@@ -64,12 +64,12 @@
             <Button ID="DeleteButton"  OnClick="DeleteButton_Click" Class="btn btn-outline-danger" >Delete</Button>
                 </div>
                 <Button ID="DeleteAccountButton"  OnClick="DeleteAccountButton_Click" Class="btn btn-outline-danger" >Click to confirm Deletion</Button>
-
+    <div>
             <label id="Label3"></label>
         </div>
 
     }
-}*@
+}
 
 
 

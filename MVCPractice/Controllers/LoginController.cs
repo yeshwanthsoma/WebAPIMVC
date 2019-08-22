@@ -69,20 +69,20 @@ namespace MVCPractice.Controllers
             if (role == "Manager")
             {
                 Session["role"] = "Manager";
-                Session["userId"] = userId;
+                Session["emailId"] = userId;
                 return RedirectToAction("Index", "Manager");
             }
             else if (role == "Customer")
             {
                 Session["role"] = "Customer";
-                Session["userId"] = userId;
+                Session["emailId"] = userId;
                 return RedirectToAction("Index", "Customer");
 
             }
             else if (role == "BankManager")
             {
                 Session["role"] = "BankManager";
-                Session["userId"] = userId;
+                Session["emailId"] = userId;
                 return RedirectToAction("Index", "SuperManager");
 
             }

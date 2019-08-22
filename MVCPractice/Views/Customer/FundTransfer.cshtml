@@ -1,4 +1,4 @@
-﻿@model BusinessLayer.Account
+﻿@model MVCPractice.Models.accountDetailViewModel
 
 @{
     ViewBag.Title = "FundTransfer";
@@ -36,9 +36,9 @@
         <div>
             <br/>
         <label id="Label6">
-                @ViewBag.Error
+                @Session["SameAccountFundTransferError"]
             
-                @ViewBag.Success
+                @Session["FundTransferSuccessful"]
             
         </label>
     </div>

@@ -4,6 +4,8 @@ using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 using BusinessLayer;
+using System.Net.Http;
+using MVCPractice.Models;
 
 namespace MVCPractice.Controllers
 {
@@ -11,31 +13,128 @@ namespace MVCPractice.Controllers
     {
         //
         // GET: /Manager/
-
+        HttpClient client = new HttpClient();
         public ActionResult Index()
         {
-            string userId = Convert.ToString(Session["userId"]);
-            BankEntities2 dbContext = new BankEntities2();
-            Manager manager= dbContext.Managers.Where(val=>val.userId==userId).Single<Manager>();
-            List<Customer> customer = dbContext.Customers.Where(x => manager.branchId==x.branchId ).ToList<Customer>();
-         
-            return View(customer);
-          
+            List<userDetailViewModel> customers = new List<userDetailViewModel>();
+            try
+            {
+                string emailId = Convert.ToString(Session["emailId"]);
+                using (var client = new HttpClient())
+                {
+                    int userId;
+                    string error;
+                    client.BaseAddress = new Uri("http://153.59.21.37:8090/api/Manager/");
+                    var responseTask = client.GetAsync("getUserIdFromEmailId?emailId=" + emailId);
+                    responseTask.Wait();
+                    var result = responseTask.Result;
+                    if (result.IsSuccessStatusCode)
+                    {
+                        var readTask = result.Content.ReadAsAsync<int>();
+                        readTask.Wait();
+                        userId = readTask.Result;
+                        //Another Web Api call
+                        responseTask = client.GetAsync("getCustomersByManagerId?managerId=" + userId);
+                        responseTask.Wait();
+                        result = responseTask.Result;
+
+                        if (result.IsSuccessStatusCode)
+                        {
+                            var readTask2 = result.Content.ReadAsAsync<List<userDetailViewModel>>();
+                            readTask2.Wait();
+                            customers = readTask2.Result;
+                        }
+                        else
+                        {
+                            throw new Exception("Exception occured while getting customers");
+                        }
+
+                    }
+                    else //if emailId is not existing in the table
+                    {
+                        var readTask = result.Content.ReadAsAsync<string>();
+                        readTask.Wait();
+                        error = readTask.Result;
+                        //ModelState.AddModelError(string.Empty, "Server error. Please contact administrator.");
+                    }
+                }
+
+            }
+            catch (Exception e)
+            {
+                ModelState.AddModelError(string.Empty, "Server error. Please contact administrator.");
+            }
+            return View(customers);
         }
+
+
         public ActionResult Withdraw()
         {
             return View();
         }
+
         [HttpPost]
-        public ActionResult Withdraw(long acc, int amt)
+        public ActionResult Withdraw(accountDetailViewModel account)
         {
+            string emailId = Convert.ToString(Session["emailId"]);
+            string resultMessage = ""; int userId;
             try
             {
 
-                ManagerClass obj = new ManagerClass();
+                using (var client = new HttpClient())
+                {
+                    client.BaseAddress = new Uri("http://153.59.21.37:8090/api/");
+                    var postTask = client.PostAsJsonAsync<accountDetailViewModel>("Manager/withdrawAmount", account);
+                    postTask.Wait();
 
-                string res = obj.withdraw(acc, amt);
-                ViewBag.result = res;
+                    var result = postTask.Result;
+                    if (result.IsSuccessStatusCode)
+                    {
+                        // client.BaseAddress = new Uri("http://153.59.21.37:8090/api/");
+                        var responseTask = client.GetAsync("Manager/getUserIdFromEmailId?emailId=" + emailId);
+                        responseTask.Wait();
+                        var result2 = responseTask.Result;
+                        if (result2.IsSuccessStatusCode)
+                        {
+                            var readTask = result2.Content.ReadAsAsync<int>();
+                            readTask.Wait();
+                            userId = readTask.Result;
+                            postTask = client.PostAsJsonAsync<transactionDetailViewModel>("Transaction/insertTransaction",
+                                                                new transactionDetailViewModel
+                                                                {
+                                                                    transactionType = "Withdraw",
+                                                                    sourceAccountNumber = account.accountNumber,
+                                                                    destinationAccountNumber = account.accountNumber,
+                                                                    transactionAmount = (int)account.accountBalance,
+                                                                    transactionAuthorizedBy = userId,
+                                                                    comments = "Withdrawn"
+                                                                });
+                            postTask.Wait();
+                            result = postTask.Result;
+                            if (result.IsSuccessStatusCode)
+                            {
+                                resultMessage = "Withdrawn " + account.accountBalance + " successfully";
+                            }
+                            else
+                            {
+                                resultMessage = "Exception Occured";
+                            }
+                        }
+                        else
+                        {
+                            resultMessage = "error wyhile getting userId from Email";
+                        }
+
+                    }
+                    else
+                    {
+                        var readTask = result.Content.ReadAsAsync<string>();
+                        readTask.Wait();
+                        resultMessage = readTask.Result;
+                        //ModelState.AddModelError(string.Empty, "Server error. Please contact administrator.");
+                    }
+                }
+                ViewBag.result = resultMessage;
 
             }
 
@@ -51,16 +150,69 @@ namespace MVCPractice.Controllers
         {
             return View();
         }
+
         [HttpPost]
-        public ActionResult Deposit(long acc, int amt)
+        public ActionResult Deposit(accountDetailViewModel account)
         {
+            string emailId = Convert.ToString(Session["emailId"]);
+            string resultMessage = ""; int userId;
             try
             {
 
-                ManagerClass obj = new ManagerClass();
+                using (var client = new HttpClient())
+                {
+                    client.BaseAddress = new Uri("http://153.59.21.37:8090/api/");
+                    var postTask = client.PostAsJsonAsync<accountDetailViewModel>("Manager/depositAmount", account);
+                    postTask.Wait();
 
-                string res = obj.deposit(acc, amt);
-                ViewBag.result = res;
+                    var result = postTask.Result;
+                    if (result.IsSuccessStatusCode)
+                    {
+                        // client.BaseAddress = new Uri("http://153.59.21.37:8090/api/");
+                        var responseTask = client.GetAsync("Manager/getUserIdFromEmailId?emailId=" + emailId);
+                        responseTask.Wait();
+                        var result2 = responseTask.Result;
+                        if (result2.IsSuccessStatusCode)
+                        {
+                            var readTask = result2.Content.ReadAsAsync<int>();
+                            readTask.Wait();
+                            userId = readTask.Result;
+                            postTask = client.PostAsJsonAsync<transactionDetailViewModel>("Transaction/insertTransaction",
+                                                                new transactionDetailViewModel
+                                                                {
+                                                                    transactionType = "Deposit",
+                                                                    sourceAccountNumber = account.accountNumber,
+                                                                    destinationAccountNumber = account.accountNumber,
+                                                                    transactionAmount = (int)account.accountBalance,
+                                                                    transactionAuthorizedBy = userId,
+                                                                    comments = "Deposited"
+                                                                });
+                            postTask.Wait();
+                            result = postTask.Result;
+                            if (result.IsSuccessStatusCode)
+                            {
+                                resultMessage = "Deposited " + account.accountBalance + " successfully";
+                            }
+                            else
+                            {
+                                resultMessage = "Exception Occured";
+                            }
+                        }
+                        else
+                        {
+                            resultMessage = "error wyhile getting userId from Email";
+                        }
+
+                    }
+                    else
+                    {
+                        var readTask = result.Content.ReadAsAsync<string>();
+                        readTask.Wait();
+                        resultMessage = readTask.Result;
+                        //ModelState.AddModelError(string.Empty, "Server error. Please contact administrator.");
+                    }
+                }
+                ViewBag.result = resultMessage;
 
             }
 
@@ -71,6 +223,9 @@ namespace MVCPractice.Controllers
             return View();
 
         }
+
+
+
         public ActionResult Account()
         {
             return View();
@@ -79,23 +234,35 @@ namespace MVCPractice.Controllers
         public ActionResult Account(int customerId)
         {
 
-
-            BankEntities2 dbContext = new BankEntities2();
+            List<accountDetailViewModel> obj = new List<accountDetailViewModel>();
+            //BankEntities2 dbContext = new BankEntities2();
             Session["customerId"] = customerId;
-            string branchId = Session["Branch"].ToString();
-            try
+            string loginId = Session["emailId"].ToString();
+            using (client)
             {
-                Customer allcustomer = dbContext.Customers.Single(x => x.customerId == customerId && x.branchId == branchId);
-                List<Account> accounts = (dbContext.Accounts.Where(x => x.customerId == allcustomer.customerId)).ToList();
-                return View("AccountsList", accounts);
-            }
-            catch (Exception e)
-            {
-                ViewBag.msg = "This is not your branch customer";
-                return View("Account");
+                client.BaseAddress = new Uri("http://localhost:80");
+                //HTTP GET
+                var responseTask = client.GetAsync("BankAPI/api/Manager/getAllAccountsOfBranchCustomer?userId=" + customerId + "&loginId=" + loginId);
+                responseTask.Wait();
+                var result = responseTask.Result;
+                if (result.IsSuccessStatusCode)
+                {
+                    var readTask = result.Content.ReadAsAsync<List<accountDetailViewModel>>();
+                    readTask.Wait();
+                    obj = readTask.Result;
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, "Server error. Please contact administrator.");
+                    var readTask = result.Content.ReadAsAsync<string>();
+                    readTask.Wait();
+                    string msg = readTask.Result;
+                    ViewBag.msg = msg;
+                    return View("Account");
+                }
             }
 
-
+            return View("Account", obj);
         }
 
         public ActionResult addAccount()
@@ -162,40 +329,115 @@ namespace MVCPractice.Controllers
         }
 
         [HttpPost]
-        public ActionResult ManageCustomer(int customerId)
+        public ActionResult ManageCustomer(int userId)
         {
-            BankEntities2 dbContext = new BankEntities2();
-            string managerId = Session["userId"].ToString();
-            Session["CustomerId"] = customerId;
-            Manager mgrDetails = dbContext.Managers.Single(x => x.userId == managerId);
-            Customer objCheckUser = dbContext.Customers.SingleOrDefault(x => (x.customerId == customerId));
-            if (objCheckUser == null) // No customer exists
+
+            string managerEmailId = Session["emailId"].ToString();
+            userDetailViewModel customer = new userDetailViewModel();
+            Session["CustomerId"] = userId;
+
+            using (var client = new HttpClient())
             {
-                ViewBag.Error = "No customer Exists";
-            }
-            else
-            {
-                if (objCheckUser.managerId != mgrDetails.managerId)
+                int managerUserId;
+
+                client.BaseAddress = new Uri("http://153.59.21.37:8090/api/Manager/");
+                var responseTask = client.GetAsync("getUserIdFromEmailId?emailId=" + managerEmailId);
+                responseTask.Wait();
+                var result = responseTask.Result;
+                if (result.IsSuccessStatusCode)
                 {
-                    ViewBag.Error = "You cannot access this customer";
+                    var readTask = result.Content.ReadAsAsync<int>();
+                    readTask.Wait();
+                    managerUserId = readTask.Result;
+                    //Another Web Api call
+                    responseTask = client.GetAsync("getUserDetailsFromUserId?userId=" + userId);
+                    responseTask.Wait();
+                    result = responseTask.Result;
+
+                    if (result.IsSuccessStatusCode)
+                    {
+                        var readTask2 = result.Content.ReadAsAsync<userDetailViewModel>();
+                        readTask2.Wait();
+                        customer = readTask2.Result;
+                        if (customer.managerId == managerUserId)
+                        {
+                            return View(customer);
+                        }
+                        else
+                        {
+                            ViewBag.Error = "You cannot access this customer";
+                        }
+                    }
+                    else
+                    {
+                        ViewBag.Error = "No customer Exists";
+                    }
+
                 }
-                else
+                else //if emailId is not existing in the table
                 {
-                    return View(objCheckUser);
+                    var readTask = result.Content.ReadAsAsync<string>();
+                    readTask.Wait();
+                    ViewBag.Error = readTask.Result;
+                    //ModelState.AddModelError(string.Empty, "Server error. Please contact administrator.");
                 }
             }
-            ViewBag.customerId = customerId;
+            ViewBag.customerId = userId;
             return View();
         }
 
         public ActionResult ShowAllCustomers()
         {
-            BankEntities2 dbContext = new BankEntities2();
-            string managerId = Session["userId"].ToString();
-            Manager mgrDetails = dbContext.Managers.Single(x => x.userId == managerId);
+            List<userDetailViewModel> customers = new List<userDetailViewModel>();
+            try
+            {
+                string emailId = Convert.ToString(Session["emailId"]);
+                using (var client = new HttpClient())
+                {
+                    int userId;
+                    string error;
+                    client.BaseAddress = new Uri("http://153.59.21.37:8090/api/Manager/");
+                    var responseTask = client.GetAsync("getUserIdFromEmailId?emailId=" + emailId);
+                    responseTask.Wait();
+                    var result = responseTask.Result;
+                    if (result.IsSuccessStatusCode)
+                    {
+                        var readTask = result.Content.ReadAsAsync<int>();
+                        readTask.Wait();
+                        userId = readTask.Result;
+                        //Another Web Api call
+                        responseTask = client.GetAsync("getCustomersByManagerId?managerId=" + userId);
+                        responseTask.Wait();
+                        result = responseTask.Result;
 
-            List<Customer> list = dbContext.Customers.Where(x => x.managerId == mgrDetails.managerId).ToList();
-            return View(list);
+                        if (result.IsSuccessStatusCode)
+                        {
+                            var readTask2 = result.Content.ReadAsAsync<List<userDetailViewModel>>();
+                            readTask2.Wait();
+                            customers = readTask2.Result;
+                        }
+                        else
+                        {
+                            throw new Exception("Exception occured while getting customers");
+                        }
+
+                    }
+                    else //if emailId is not existing in the table
+                    {
+                        var readTask = result.Content.ReadAsAsync<string>();
+                        readTask.Wait();
+                        error = readTask.Result;
+                        //ModelState.AddModelError(string.Empty, "Server error. Please contact administrator.");
+                    }
+                }
+
+            }
+            catch (Exception e)
+            {
+                ModelState.AddModelError(string.Empty, "Server error. Please contact administrator.");
+            }
+            return View(customers);
+
         }
 
         public ActionResult AddCustomer()
@@ -220,7 +462,7 @@ namespace MVCPractice.Controllers
                 custObj.createdDate = DateTime.Now.ToShortDateString();
                 custObj.editedDate = DateTime.Now.ToShortDateString();
                 //custObj.type = "Bronze";
-                string managerId = Session["userId"].ToString();
+                string managerId = Session["emailId"].ToString();
                 BankEntities2 dbContext = new BankEntities2();
                 Manager mgrDetails = dbContext.Managers.Single(x => x.userId == managerId);
                 custObj.managerId = mgrDetails.managerId;

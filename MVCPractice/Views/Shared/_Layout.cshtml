@@ -8,6 +8,10 @@
     <script src="~/Scripts/jquery-3.4.1.min.js"></script>
     <script src="~/Scripts/jquery-ui-1.12.1.js"></script>
     <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script src="~/Scripts/bootstrap.bundle.min.js"></script>
+   
+
+    ​
     @*<link href="~/Scripts/CSS/bootstrap-theme.css" rel="stylesheet" />*@
     <link href="~/Scripts/CSS/bootstrap.css" rel="stylesheet" />
     @*<link href="~/Scripts/CSS/site.css" rel="stylesheet" />*@
@@ -35,12 +39,12 @@
                     </li>
                 </ul>
             </div>
-            <div class="pull-right">
+            <div class="p-sm-2">
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item pull-right">
+                    <li class="nav-item">
     @if (Session["role"] != null)
                         {
-        <a class="navbar-brand"><h4 style="color:#ffffff">Welcome @Session["userId"] !</h4></a>
+        <a class="navbar-brand"><h4 style="color:#ffffff">Welcome @Session["emailId"] !</h4></a>
                         }
     @if (Session["accountNumber"] != null)
                         {
@@ -49,26 +53,39 @@
                             <a class="navbar-brand">
         <h4 style="color:#ffffff">
             @result
+
         </h4>
     </a>
 }
     @if (Session["medal"] != null && Session["accountNumber"] != null)
                         {
                             var medal = Session["medal"].ToString() + ".jfif";
-        <img src="~/Images/@medal" alt="Sample Photo" />
+        <img src="~/Images/@medal" alt="Sample Photo" style="width:80px;height:80px"/>
                         }
     <label id="HeaderName" style="color:#ffffff"></label>
     <label id="HeaderAccountNo" style="color:#ffffff"></label>
-                   
-                        @if (Session["role"] != null)
-                        {<a class="navbar-brand"><button type="button" id="changePasswordBtn" onclick="location.href='@Url.Action("ChangePassword", "Customer")'" class="btn btn-outline-light ">ChangePassword </button><text>&nbsp;</text></a>
-                        }
-                   
-                    
+                        <!-- Example single danger button -->
                         @if (ViewContext.RouteData.Values["Controller"].ToString() != "Login")
-                        {
-                          <a class="navbar-brand">  <input type="button" value="Logout" id="logoutBtn" onclick="location.href='@Url.Action("Logout", "Login")'" class="btn btn-outline-light" /></a>
+                        { 
+                        <div class="btn-group">
+                          
+                            <input type="image" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" name="imgbtn" src="~/Images/images.png" alt="Tool Tip" style="width:40px;height:40px">
+                            <div class="dropdown-menu dropdown-menu-right">
+                                @if (Session["role"] != null)
+{
+     <a class="dropdown-item btn" onclick="location.href = '@Url.Action("ChangePassword", "Customer")'">Change Password</a>
+}
+                                <div class="dropdown-divider"></div>
+                                @if (ViewContext.RouteData.Values["Controller"].ToString() != "Login")
+{
+                        <a class="dropdown-item btn" onclick="location.href = '@Url.Action("Logout", "Login")'"> Logout </a>
+}
+                            </div>
+                        </div>
+                       
                         }
+                    
+                       
                    
                 </ul>
             </div>
@@ -145,7 +162,7 @@
                 <li class="nav-item pull-right">
                     @if (Session["role"] != null)
                     {
-                        <a class="navbar-brand"><h4 style="color:#ffffff">Welcome @Session["userId"] !</h4></a>
+                        <a class="navbar-brand"><h4 style="color:#ffffff">Welcome @Session["emailId"] !</h4></a>
 
                     }
 

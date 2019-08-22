@@ -1,4 +1,4 @@
-﻿@model  IEnumerable<BusinessLayer.Transaction>
+﻿@model  IEnumerable<MVCPractice.Models.transactionDetailViewModel>
 
 @{
     ViewBag.Title = "MiniStatement";
@@ -25,7 +25,10 @@
             <input type="submit" class="btn btn-outline-success" value="Submit" />
         </div>
         <div>
-            <label id="message">@ViewBag.message</label>
+            <label id="message">@Session["CustomStatementEmpty"]</label>
+        </div>
+        <div>
+            <label id="message">@Session["CustomStatementSuccess"]</label>
         </div>
 
 
@@ -45,8 +48,9 @@
                         <th>Amount</th>
                         <th>Transaction Type</th>
                         <th>Comment</th>
+                        <th>Transaction Authorized by</th>
                     </tr>
-                    @foreach (BusinessLayer.Transaction transaction in @Model)
+                    @foreach (MVCPractice.Models.transactionDetailViewModel transaction in @Model)
                     {
                         <tr>
 
@@ -56,7 +60,7 @@
                             <td>
                                 @if (transaction.transactionType == "FundTransfer" || transaction.transactionType == "withdraw")
                                 {
-                                    @transaction.fromAccountNo
+                                    @transaction.sourceAccountNumber
                                 }
                                 else
                                 {
@@ -67,7 +71,7 @@
                             <td>
                                 @if (transaction.transactionType == "FundTransfer" || transaction.transactionType == "deposit")
                                 {
-                                    @transaction.toAccountNo
+                                    @transaction.destinationAccountNumber
                                 }
                                 else
                                 {
@@ -77,16 +81,16 @@
                             <td>
                                 @transaction.transactionDate
                             </td>
-                            @if (long.Parse(Session["accountNumber"].ToString()) != @transaction.fromAccountNo || transaction.transactionType == "deposit")
+                            @if (long.Parse(Session["accountNumber"].ToString()) != @transaction.sourceAccountNumber || transaction.transactionType == "deposit")
                             {
                                 <td style="color: green">
-                                    @transaction.amount
+                                    @transaction.transactionAmount
                                 </td>
                             }
                             else
                             {
                                 <td style="color:red">
-                                    @transaction.amount
+                                    @transaction.transactionAmount
                                 </td>
                             }
                             <td>
@@ -94,6 +98,9 @@
                             </td>
                             <td>
                                 @transaction.comments
+                            </td>
+                            <td>
+                                @transaction.transactionAuthorizedBy
                             </td>
                         </tr>
 

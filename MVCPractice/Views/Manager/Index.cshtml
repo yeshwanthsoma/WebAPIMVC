@@ -1,4 +1,4 @@
-﻿@model IEnumerable<BusinessLayer.Customer>
+﻿@model IEnumerable<MVCPractice.Models.userDetailViewModel>
 
 @{
     ViewBag.Title = "Index";
@@ -18,56 +18,33 @@
                 <table border="1" style="font-family:Arial" class="table table-hover table-striped">
                     <tr>
                    
-                        <th>CustomerId</th>
-                        <th>CustomerName</th>
-                        <th>Gender</th>
-                        <th>Date Of Birth</th>
-                        <th>Address</th>
-                        <th>State</th>
-                        <th>City</th>
-                        <th>Pincode</th>
-                        <th>Phone</th>
-                        <th>Email</th>
-                        <th>Branch</th>
+                        <th>Customer Id</th>
+                        <th>Customer Name</th>
+                        <th>Phone Number </th>
+                        <th>Branch Id</th>
+                        <th>Manager Id</th>
                     </tr>
 
-                    @foreach (BusinessLayer.Customer customer in @Model)
+                    @foreach (MVCPractice.Models.userDetailViewModel customer in @Model)
                     {
                         <tr>
                             
                             <td>
-                                @customer.customerId
+                                @customer.userId
                             </td>
                             <td>
-                                @customer.customerName
+                                @customer.userName
                             </td>
                             <td>
-                                @customer.gender
-                            </td>
-                            <td>
-                                @customer.dob
-                            </td>
-                            <td>
-                                @customer.address
-                            </td>
-                            <td>
-                                @customer.state
-                            </td>
-                            <td>
-                                @customer.city
-                            </td>
-                            <td>
-                                @customer.pincode
-                            </td>
-                            <td>
-                                @customer.phoneNo
-                            </td>
-                            <td>
-                                @customer.email
+                                @customer.phoneNumber
                             </td>
                             <td>
                                 @customer.branchId
                             </td>
+                            <td>
+                                @customer.managerId
+                            </td>
+                            
                         </tr>
 
                     }

@@ -1,4 +1,4 @@
-﻿    @model BusinessLayer.Customer
+﻿@model MVCPractice.Models.userDetailViewModel
 @{
     ViewBag.Title = "ManageCustomer";
 }
@@ -13,7 +13,8 @@
         </div>
         <div class="form-group">
             <label id="Label1" class="col-form-label">Customer id </label>
-            <input type="text" class="form-control" name="customerId" id="customerId" />
+            @Html.Editor("userId")
+            @*<input type="text" class="form-control" name="userId" id="userId" />*@
             @*@Html.EditorFor(model => model.customerId)*@
         </div>
         <div>
@@ -39,16 +40,16 @@
                     </tr>
                     <tr>
                         <td>
-                            @Model.customerId
+                            @Model.userId
                         </td>
                         <td>
-                            @Model.customerName
+                            @Model.userName
                         </td>
                         <td>
                             @Model.gender
                         </td>
                         <td>
-                            @Model.dob
+                            @Model.dateOfBirth
                         </td>
                         <td>
                             @Model.address
@@ -63,10 +64,10 @@
                             @Model.pincode
                         </td>
                         <td>
-                            @Model.phoneNo
+                            @Model.phoneNumber
                         </td>
                         <td>
-                            @Model.email
+                            @Model.emailId
                         </td>
                         <td>
                             @Model.branchId
